@@ -1,4 +1,6 @@
 {
-    "mongoURI": "mongodb+srv://anujk27j:anujk27j123@devbook.51ospg2.mongodb.net/?retryWrites=true&w=majority",
-    "jwtSecret" : "mySecretToken"
+  "mongoURI": "mongodb+srv://anujk27j:anujk27j123@devbook.51ospg2.mongodb.net/?retryWrites=true&w=majority",
+  "jwtSecret": "mySecretToken",
+  "githubClientId": "db45e453a44c5f8d0840",
+  "githubClientSecret": "284e9e55eaa89924f75587238adc2495a6e3d198"
 }
