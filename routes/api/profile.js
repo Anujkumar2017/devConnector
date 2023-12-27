@@ -5,7 +5,7 @@ const config = require('config');
 const request = require('request');
 const { check, validationResult } = require('express-validator');
 const User = require('../../models/User');
-const Profile = require('../../models/profile');
+const Profile = require('../../models/Profile');
 
 // @route   GET api/profile/me
 // @desc    Get current user
@@ -134,7 +134,7 @@ router.get('/user/:user_id', async (req, res) => {
     res.json(profile);
   } catch (err) {
     console.log(err.message);
-    if (err.knid != 'ObjectId') {
+    if (err.knid === 'ObjectId') {
       return res.status(400).json({ msg: 'Profile not found' });
     }
     res.status(500).send('Server Error');
