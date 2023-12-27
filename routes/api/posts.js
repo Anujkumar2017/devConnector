@@ -107,7 +107,7 @@ router.delete('/:postId', auth, async (req, res) => {
   }
 });
 
-// @route   PUT api/posts/like:postId
+// @route   PUT api/posts/like/:postId
 // @desc    Like a post
 // @access  Private
 router.put('/like/:postId', auth, async (req, res) => {
@@ -142,7 +142,7 @@ router.put('/like/:postId', auth, async (req, res) => {
   }
 });
 
-// @route   PUT api/posts/unlike:postId
+// @route   PUT api/posts/unlike/:postId
 // @desc    Unlike a post
 // @access  Private
 router.put('/unlike/:postId', auth, async (req, res) => {
@@ -171,6 +171,96 @@ router.put('/unlike/:postId', auth, async (req, res) => {
     await post.save();
 
     res.json({ msg: 'Post unliked', likes: post.likes });
+  } catch (err) {
+    console.log(err.message);
+
+    if (err.kind === 'ObjectId') {
+      return res.status(404).json({ msg: 'Post not found!' });
+    }
+
+    res.status(500).send('Server Error');
+  }
+});
+
+// @route   POST api/posts/comment/:postId
+// @desc    Comment on a post
+// @access  Private
+router.post(
+  '/comment/:postId',
+  [auth, [check('text', 'Text is required').not().isEmpty()]],
+  async (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty())
+      return res.status(400).json({ errors: errors.array() });
+
+    try {
+      const user = await User.findById(req.user.id).select('-password');
+      const post = await Post.findById(req.params.postId);
+      
+      if (!post) {
+        return res.status(404).json({ msg: 'Post not found!' });
+      }
+
+      // Create post
+      const newComment = {
+        text: req.body.text,
+        name: user.name,
+        avatar: user.avatar,
+        user: req.user.id,
+      };
+
+      post.comments.unshift(newComment);
+
+      await post.save();
+
+      res.json(post.comments);
+    } catch (err) {
+      console.log(err.message);
+
+      if (err.kind === 'ObjectId') {
+        return res.status(404).json({ msg: 'Post not found!' });
+      }
+
+      res.status(500).send('Serever Error');
+    }
+  }
+);
+
+// @route   DELETE api/posts/comment/:postId/:commenId
+// @desc    Delete a comment on post
+// @access  Private
+router.delete('/comment/:postId/:commentId', auth, async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.postId);
+
+    if (!post) {
+      return res.status(404).json({ msg: 'Post not found!' });
+    }
+
+    const comment = post.comments.find(comment=> comment.id === req.params.commentId);
+
+    // Make sure commet exists
+    if (!comment) {
+      return res.status(404).json({ msg: 'Comment not found!' });
+    }
+
+    // Check user
+    if (comment.user.toString() !== req.user.id) {
+      return res.status(401).json({ msg: 'User not authorized' });
+    }
+
+    // Get removed index
+    const removeIndex = post.comments
+      .map((comment) => comment.user.toString())
+      .indexOf(req.user.id);
+
+    post.comments.splice(removeIndex, 1);
+
+    // Delete comment
+    await post.save();
+
+    res.json(post.comments);
   } catch (err) {
     console.log(err.message);
 
