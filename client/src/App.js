@@ -5,32 +5,41 @@ import Landing from './components/layout/Landing';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 
+// Redux
+import { Provider } from 'react-redux';
+import store from './store';
+
 import './App.css';
+import Alert from './components/layout/Alert';
 
 const App = () => {
   return (
-    <Router>
-      <Navbar />
-      <Routes>
-        <Route exact path='/' element={<Landing />} />
-        <Route
-          path='/login'
-          element={
-            <section className='container'>
-              <Login />
-            </section>
-          }
-        />
-        <Route
-          path='/register'
-          element={
-            <section className='container'>
-              <Register />
-            </section>
-          }
-        />
-      </Routes>
-    </Router>
+    <Provider store={store}>
+      <Router>
+        <Navbar />
+        <Routes>
+          <Route exact path='/' element={<Landing />} />
+          <Route
+            path='/login'
+            element={
+              <section className='container'>
+                <Alert />
+                <Login />
+              </section>
+            }
+          />
+          <Route
+            path='/register'
+            element={
+              <section className='container'>
+                <Alert />
+                <Register />
+              </section>
+            }
+          />
+        </Routes>
+      </Router>
+    </Provider>
   );
 };
 
